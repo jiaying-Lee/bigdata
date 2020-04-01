@@ -1,0 +1,93 @@
+Assignment 3 - Responses
+
+NETID: jl10919
+
+2-e) How many clusters are there?
+
+8995
+
+
+
+2-f) How many clusters are there?
+
+When n=2, there are 8888 clusters
+
+
+2-g) Which fingerprint strategy works better for plate_id? How about for street_name? Explain.
+
+Fingerprint works better for plate_id. Since plated_id only has 3 letters and 4 numbers and no whitespace between letters.
+So they can be regarded as one word. And dealing with one word, fingerprint would do nothing when the word
+has different order of the same letters, but the n-gram would conduct the same output. However, because of this
+feature of n-gram, n-gram would cluster items that they are supposed to be different.
+
+eg. Fingerprint:    key:jnp981     values:JNP981&,JNP981
+                    key:l21687     values:L.21687,L21687
+
+n-gram fingerprint: key:088088e8fegf     values:GFE8808,GFE8088
+
+In this case, GFE8808 and GFE8088 are different plated id, but similar. They should not be clustered.
+
+
+Fingerprint works better for street_name when choosing a proper value for n. As the reason above, n-gram would reduce
+the case that has repeat letters in one word but fingerprint would not. Thus, n-gram would make mistakes, especially
+when n is too small. when n=1, many different information might be computed as the same and there are 6867 clusters since many different street_name are put into the same cluster.
+
+eg.
+Fingerprint:
+    key:blvd springfield    values:SPRINGFIELD BLVD,SPRINGFIELD  BLVD,;SPRINGFIELD BLVD,Springfield Blvd
+    key:10044 main nyny st  values:MAIN ST NYNY 10044
+
+n-gram fingerprint：
+when n=2,
+    key:222ndse2ndst  values:E 222ND ST, E 22ND ST, E 222nd St,E 22nd St
+when n=1, n-gram fingerprint:
+key:01aehtv     values:10TH AVE, 110th Ave, 100th Ave, 10th Ave
+
+When n is too big, too many items are put into the cluster with null key.
+eg. when n=4,
+    key:''   values:'E 51', '', '9 ST', 'CPW', 'W 53', 'E 96', 'E 94', '6 ST', '8 ST', '5 ST', 'E 80', 'AV', 'E 2', 'CIA', 'E 34', 'E 37', 'E 52', 'E 49', '1 10', 'E 70', '252', 'W 12', 'WEA', 'W 83', 'W 75', 'GCP', '2ND', '45', 'WPR', 'LEE', '158', '217', 'E 44', 'E 48', '98', '112', '1', 'RSD', '1 ST', '1ST', 'E 86', 'E 84', '174', 'O P', 'ACP', '9ST', 'E 77', 'E 89', '70', 'W 73', 'W 78', 'W 68', 'W 96', '4 ST', '7 ST', 'A/C', 'C/O', '2 ST', '5TH', 'E 87', 'E 23', 'E 21', 'E 46', 'E 24', 'E 69', 'RBB', 'E 31', 'E 32', 'E 35', 'E 55', 'E 72', 'AVE', 'E 36', '195', 'W 10', 'W 77', 'R/S', 'E 54', '105', '99', 'E 60', 'E 79', 'E 12', '3RD', 'E 7', 'BBA', 'E', 'E 4', '76', '62', 'LEX', 'AV M', 'E 38', 'BPE', '8  ST'
+
+
+2-h) Clearly explain the transformations that you have chosen for street_name column. How many 
+     clusters do you have after applying these transformations? 
+
+The transformations are applied during the clustering. Here I choose fingerprint to do clustering.
+
+After changing all characters to their lowercase representation, I have done following transformations :
+
+(1) change all the street special noun to the abbreviation. eg. change street to st
+(2) change all cardinal direction to abbreviation. eg. change west to w
+(3) change the ordinal number to cardinal number. eg. change 100th to 100
+
+Then do the rest part of the n-gram fingerprint.
+
+There are 6938 clusters after applying these transformations.
+
+
+
+2-i) Examine the clusters in 2.h and propose how to repair the data. Explain your recommendation.
+
+With the transformations, the number of clusters is significantly decreased.
+
+With the combination of fingerprint. This method has these advantages:
+
+(1)remove the influence of street abbreviation
+eg. key:100 st  values:-100 STREET,100 ST,100 STREET,100TH ST,100th St
+(RD STREET to ST)
+
+(2)remove the influence of direction abbreviation
+eg. key:10 st w  values:W 10 ST,WEST 10TH ST,W 10th St
+(west equals to w)
+
+(3)remove the influence of ordinal number
+eg. key:10 st w  values:W 10 ST,WEST 10TH ST,W 10th St
+(10TH equals to 10)
+
+(4)remove the influence of lowercase and uppercase
+eg. key:116 bch st    values:BEACH 116 STREET,Beach 116th St
+(Beach equals to BEACH)
+
+(5)remove the influence of punctuation and control characters
+eg. key:johns pl st    values:ST . JOHNS PL,St Johns Pl,ST JOHNS PL,ST .JOHNS PL
+(ST . JOHNS PL equals to ST JOHNS PL)
+
